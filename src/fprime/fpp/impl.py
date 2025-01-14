@@ -51,6 +51,8 @@ def _move_ut_templates(files_dir, generated_file_names):
     Args:
         files_dir: Folder with generated files
         generated_file_names: List of generated file names
+    Returns:
+        Path to the moved UT folder
     """
     # Create the UT folder
     ut_path = files_dir / Path(*UT_FILES_TARGET_PATH)
@@ -66,6 +68,7 @@ def _move_ut_templates(files_dir, generated_file_names):
         )
         destination_path = ut_path / destination_file_name
         source_path.rename(destination_path)
+    return ut_path
 
 
 def fpp_generate_implementation(
@@ -127,11 +130,12 @@ def fpp_generate_implementation(
         Path(line.decode("utf-8").strip()) for line in gen_files.readlines()
     ]
 
+    if generate_ut:
+        # output_dir value is updated to the moved folder so it is valid if formatting is enabled
+        output_dir = _move_ut_templates(output_dir, generated_file_names)
+
     if apply_formatting:
         _apply_clang_formatting(framework_path, output_dir, generated_file_names)
-
-    if generate_ut:
-        _move_ut_templates(output_dir, generated_file_names)
 
     return 0
 
